@@ -1,11 +1,11 @@
 {
   "slopes": [{
     "name": "root",
-    "exits": [{"name": "A", "distribution": 4}]
+    "exits": [{"name": "A", "distribution": 8}]
   },{
     "name": "A",
     "slope_time": 1,
-    "exits": [{"name": "root", "distribution": 4}]
+    "exits": [{"name": "root", "distribution": 2}]
   }]
 
 }

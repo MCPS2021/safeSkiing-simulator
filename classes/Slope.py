@@ -1,6 +1,5 @@
-
 class Slope:
-    def __init__(self, name, slope_time = 5):
+    def __init__(self, name, slope_time=5):
         self.name = name
         self.slope_queue_cache = []
         self.slope_queue = []
@@ -16,15 +15,17 @@ class Slope:
             self.ski_lift_capacity += exit['distribution']
 
     def pop(self):
-        #insert people with timer == 0 into ski_lift_queue
-        self.ski_lift_queue  = self.ski_lift_queue + [x['object'] for x in self.slope_queue if x['timer'] == 0]
-        #recreate slope queue without people with timer == 0
+        # insert people with timer == 0 into ski_lift_queue
+        self.ski_lift_queue = self.ski_lift_queue + [x['object'] for x in self.slope_queue if x['timer'] == 0]
+        # recreate slope queue without people with timer == 0
         self.slope_queue = [x for x in self.slope_queue if x['timer'] != 0]
 
         # reduce timer of each person in the slope queue
         for item in self.slope_queue:
             item['timer'] -= 1
 
+        # exit people ski_lift_capacity people from the lift queue
+        # if the pop fails (no people in the lift queue) just break the loop
         exiting_people = []
         for n in range(0, self.ski_lift_capacity):
             try:
@@ -32,18 +33,20 @@ class Slope:
             except:
                 break
 
-
-        if len(exiting_people)>0:
-            #for each exit in exits
+        if len(exiting_people) > 0:
+            # for each exit in exits
             for exit in self.exits:
-                #pop n element from the exiting_list and push them into the right slope
+                # pop n element from the exiting_list and push them into the right slope
+                # where n is the ditribution for that exit (how many people should get out by that exit)
                 for n in range(0, exit['distribution']):
                     if len(exiting_people) > 0:
                         exiting_person = exiting_people.pop(0)
                         exit['object'].push(exiting_person)
+                    else:
+                        break
 
     def push(self, person):
-        #insert person in the slope queue cache
+        # insert person in the slope queue cache
         # A cache is used because in the same popping round the item in the
         # cache are not used
         self.slope_queue_cache.append({'object': person, 'timer': self.slope_time})
@@ -57,7 +60,7 @@ class Slope:
         self.ski_lift_queue = people
 
     def set_slope_queue(self, people):
-        self.ski_lift_queue = [{'object':person, 'timer':self.slope_time} for person in people]
+        self.ski_lift_queue = [{'object': person, 'timer': self.slope_time} for person in people]
 
     def get_slope_queue(self):
         return self.slope_queue
