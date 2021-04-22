@@ -1,2 +1,4 @@
 /venv/
 .idea/
+classes/__pycache__/
+exceptions/__pycache__/
