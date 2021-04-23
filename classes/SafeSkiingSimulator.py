@@ -1,6 +1,6 @@
 import curses
 import random
-import time
+import paho.mqtt.publish as publish
 
 from classes.SkiPass import SkiPass
 from classes.Slope import Slope
@@ -33,8 +33,9 @@ def get_random_uuid():
 
 class SafeSkiingSimulator:
 
-    def __init__(self, c_slopes=None, initial_people=100):
+    def __init__(self, c_slopes=None, mqtt_broker_host=None ,initial_people=100):
         self.slopes = []
+        self.mqtt_broker_host = mqtt_broker_host
 
         # check if passed slopes are correctly formatted
         # and create the slopes
@@ -49,7 +50,7 @@ class SafeSkiingSimulator:
                 print("Adding slope {}".format(c_slope['name']))
                 slope_time = (c_slope['slope_time']['min'], c_slope['slope_time']['max'])
                 print("With slope time: {}, and ski lift capacity {}".format(slope_time, c_slope['ski_lift_capacity']))
-                self.slopes.append(Slope(c_slope['name'], slope_time, c_slope['ski_lift_capacity']))
+                self.slopes.append(Slope(c_slope['name'], c_slope['station_name'],slope_time, c_slope['ski_lift_capacity']))
 
             for slope in self.slopes:
                 # get the slope exits defined in the conf
@@ -133,3 +134,18 @@ class SafeSkiingSimulator:
                                                                                  len(slope.ski_lift_queue)))
         stdscr.move(curses.LINES - 1, 0)
         stdscr.refresh()
+
+    def publish_MQTT(self):
+        for slope in self.slopes:
+            if slope.name == 'root':
+                continue
+
+            # concatenate all the UUIDs
+            all_UUIDs=""
+            for person in slope.ski_lift_queue:
+                all_UUIDs += str(person.uuid) + "," + str(person.battery) + ";"
+            all_UUIDs = all_UUIDs[:-1]
+
+            #send the two MQTT topics
+            publish.single("/{}/totalPeople".format(slope.station_name), str(len(slope.ski_lift_queue)), hostname=self.mqtt_broker_host)
+            publish.single("/{}/UUIDs".format(slope.station_name), all_UUIDs, hostname=self.mqtt_broker_host)

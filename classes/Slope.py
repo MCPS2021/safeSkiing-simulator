@@ -4,8 +4,9 @@ import numpy as np
 
 
 class Slope:
-    def __init__(self, name, slope_time=(1,5), ski_lift_capacity=1):
+    def __init__(self, name, station_name, slope_time=(1,5), ski_lift_capacity=1):
         self.name = name
+        self.station_name = name
         self.slope_queue_cache = []
         self.slope_queue = []
         self.ski_lift_queue = []
