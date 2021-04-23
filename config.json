@@ -1,11 +1,20 @@
 {
   "slopes": [{
     "name": "root",
-    "exits": [{"name": "A", "distribution": 8}]
+    "exits": {
+      "slopes": ["A"], "distribution": [1]}
   },{
     "name": "A",
-    "slope_time": 1,
-    "exits": [{"name": "root", "distribution": 2}]
+    "slope_time": {"min": 1, "max": 5},
+    "ski_lift_capacity": 1,
+    "exits": {
+      "slopes": ["root","B"], "distribution": [0.2,0.8]}
+  },{
+    "name": "B",
+    "slope_time": {"min": 3, "max": 4},
+    "ski_lift_capacity": 1,
+    "exits": {
+      "slopes": ["root"], "distribution": [1]}
   }]
 
 }

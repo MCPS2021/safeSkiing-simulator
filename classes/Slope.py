@@ -1,18 +1,20 @@
+import random
+
+import numpy as np
+
+
 class Slope:
-    def __init__(self, name, slope_time=5):
+    def __init__(self, name, slope_time=(1,5), ski_lift_capacity=1):
         self.name = name
         self.slope_queue_cache = []
         self.slope_queue = []
         self.ski_lift_queue = []
         self.slope_time = slope_time
         self.exits = {}
-        self.ski_lift_capacity = None
+        self.ski_lift_capacity = ski_lift_capacity
 
     def set_exits(self, exits):
         self.exits = exits
-        self.ski_lift_capacity = 0
-        for exit in exits:
-            self.ski_lift_capacity += exit['distribution']
 
     def pop(self):
         # insert people with timer == 0 into ski_lift_queue
@@ -34,22 +36,21 @@ class Slope:
                 break
 
         if len(exiting_people) > 0:
-            # for each exit in exits
-            for exit in self.exits:
-                # pop n element from the exiting_list and push them into the right slope
-                # where n is the ditribution for that exit (how many people should get out by that exit)
-                for n in range(0, exit['distribution']):
-                    if len(exiting_people) > 0:
-                        exiting_person = exiting_people.pop(0)
-                        exit['object'].push(exiting_person)
-                    else:
-                        break
+            # extract len(exiting_people) number from a multinomial distribution
+            # define on the probability distribution for the slope's exits configuration
+            multinomial_result = np.random.multinomial(len(exiting_people), self.exits["distribution"])
+            # multinomial_result will be something like [0,1,2]
+            # this means that 0 people will go to the first exit, 1 person to the second and 2 people to the third
+            for i, result in enumerate(multinomial_result):
+                for person in range(0, result):
+                    self.exits['slopes'][i].push(exiting_people.pop(0))
+
 
     def push(self, person):
         # insert person in the slope queue cache
         # A cache is used because in the same popping round the item in the
         # cache are not used
-        self.slope_queue_cache.append({'object': person, 'timer': self.slope_time})
+        self.slope_queue_cache.append({'object': person, 'timer': random.randint(self.slope_time[0], self.slope_time[1])})
 
     def empty_cache(self):
         for item in self.slope_queue_cache:
@@ -67,3 +68,7 @@ class Slope:
 
     def get_ski_lift_queue(self):
         return self.ski_lift_queue
+
+    def get_info(self):
+        return {"name": self.name, "slope_time": self.slope_time, "ski_lift_capacity": self.ski_lift_capacity,
+                "exits": {"slopes": [slope.name for slope in self.exits["slopes"]], "distribution": self.exits["distribution"]}}
