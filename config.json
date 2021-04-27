@@ -1,4 +1,6 @@
 {
+  "background-image": "skimap.png",
+
   "slopes": [{
     "name": "root",
     "exits": {
@@ -9,14 +11,16 @@
     "slope_time": {"min": 1, "max": 5},
     "ski_lift_capacity": 1,
     "exits": {
-      "slopes": ["root","B"], "distribution": [0.2,0.8]}
+      "slopes": ["root","B"], "distribution": [0.2,0.8]},
+    "label": [200, 120]
   },{
     "name": "B",
     "station_name": "station1",
     "slope_time": {"min": 3, "max": 4},
     "ski_lift_capacity": 1,
     "exits": {
-      "slopes": ["root"], "distribution": [1]}
+      "slopes": ["root"], "distribution": [1]},
+    "label": [100, 120]
   }]
 
 }

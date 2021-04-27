@@ -1,9 +1,17 @@
 import curses
 import random
+import sys
+import threading
+import time
+
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+
 import paho.mqtt.publish as publish
 
 from classes.SkiPass import SkiPass
 from classes.Slope import Slope
+from exceptions import NoBackgroundImage
 from exceptions.BadSlopesException import BadSlopesException
 
 
@@ -33,9 +41,17 @@ def get_random_uuid():
 
 class SafeSkiingSimulator:
 
-    def __init__(self, c_slopes=None, mqtt_broker_host=None ,initial_people=100):
+    def __init__(self, config=None, mqtt_broker_host=None, initial_people=100):
+        c_slopes = config['slopes']
+
+        try:
+            self.background_image = config['background-image']
+        except:
+            self.background_image = None
+
         self.slopes = []
         self.mqtt_broker_host = mqtt_broker_host
+        self.slopes_labels = {}
 
         # check if passed slopes are correctly formatted
         # and create the slopes
@@ -50,7 +66,11 @@ class SafeSkiingSimulator:
                 print("Adding slope {}".format(c_slope['name']))
                 slope_time = (c_slope['slope_time']['min'], c_slope['slope_time']['max'])
                 print("With slope time: {}, and ski lift capacity {}".format(slope_time, c_slope['ski_lift_capacity']))
-                self.slopes.append(Slope(c_slope['name'], c_slope['station_name'],slope_time, c_slope['ski_lift_capacity']))
+                self.slopes.append(
+                    Slope(c_slope['name'], c_slope['station_name'], slope_time, c_slope['ski_lift_capacity']))
+
+                # adding label coordinates
+                self.slopes_labels[c_slope['name']] = c_slope['label']
 
             for slope in self.slopes:
                 # get the slope exits defined in the conf
@@ -85,7 +105,15 @@ class SafeSkiingSimulator:
 
     def simulate(self, gui_enabled=True, n_steps=1, sleep_time=1):
         if gui_enabled:
-            curses.wrapper(self.simulate_gui, n_steps, sleep_time)
+            # create GUI app and window
+            app, window = self.build_window()
+            # create the thread that will update the labels on the GUI
+            updating_thread = threading.Thread(target=self.simulate_gui, args=(window, n_steps, sleep_time,))
+            # start the thread
+            updating_thread.start()
+            # exec the GUI
+            sys.exit(app.exec())
+
         else:
             for step in range(0, n_steps):
                 # pop people form the slopes
@@ -102,7 +130,7 @@ class SafeSkiingSimulator:
 
                 print(self.get_slopes_status())
 
-    def simulate_gui(self, stdscr, n_steps, sleep_time):
+    def simulate_gui(self, window, n_steps, sleep_time):
         for step in range(0, n_steps):
             # pop people form the slopes
             # people exit from ski lift queue and goes to
@@ -116,11 +144,7 @@ class SafeSkiingSimulator:
             for slope in self.slopes:
                 slope.empty_cache()
 
-            # draw the gui
-            self.draw(stdscr)
-
-            stdscr.get_wch()
-            # time.sleep(sleep_time)
+            time.sleep(sleep_time)
 
     def get_slope_by_name(self, name):
         for slope in self.slopes:
@@ -141,11 +165,43 @@ class SafeSkiingSimulator:
                 continue
 
             # concatenate all the UUIDs
-            all_UUIDs=""
+            all_UUIDs = ""
             for person in slope.ski_lift_queue:
                 all_UUIDs += str(person.uuid) + "," + str(person.battery) + ";"
             all_UUIDs = all_UUIDs[:-1]
 
-            #send the two MQTT topics
-            publish.single("/{}/totalPeople".format(slope.station_name), str(len(slope.ski_lift_queue)), hostname=self.mqtt_broker_host)
+            # send the two MQTT topics
+            publish.single("/{}/totalPeople".format(slope.station_name), str(len(slope.ski_lift_queue)),
+                           hostname=self.mqtt_broker_host)
             publish.single("/{}/UUIDs".format(slope.station_name), all_UUIDs, hostname=self.mqtt_broker_host)
+
+    def build_window(self):
+        # initialize GUI application
+        app = QApplication(sys.argv)
+
+        # window and settings
+        window = QWidget()
+        window.setWindowTitle("Safe Skiing Simulator")
+        # window position and dimension
+        window.setGeometry(50, 50, 824, 707)
+        # check if the background image was specified in the config
+        if self.background_image is None:
+            raise NoBackgroundImage
+        #set the background image
+        window.setStyleSheet(
+            "background-image: url("+self.background_image+"); background-repeat: no-repeat; background-position: center;")
+
+        for label in self.slopes_labels:
+            # create the label
+            slope_label = QLabel(parent=window)
+            slope_label.setFont(QFont('Arial', 10, QFont.Bold))
+            slope_label.setStyleSheet("color: #ff0000;")
+            # move the label in the coords indicated in the config file
+            slope_label.move(self.slopes_labels.get(label)[0], self.slopes_labels.get(label)[1])
+            # set as label name the slope name
+            # in this way we can access it later on through
+            # window.findChildren(QLabel, name="label1"):
+            slope_label.setObjectName(label)
+
+        window.show()
+        return app, window

@@ -21,7 +21,7 @@ if __name__ == '__main__':
         config = json.load(f)
 
     #gui()
-    sim = SafeSkiingSimulator(config['slopes'],initial_people=10)
+    sim = SafeSkiingSimulator(config,initial_people=100)
 
     for slope in sim.slopes:
         print(slope.get_info())
