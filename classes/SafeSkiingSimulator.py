@@ -144,6 +144,15 @@ class SafeSkiingSimulator:
             for slope in self.slopes:
                 slope.empty_cache()
 
+            # update labels
+            for slope in self.slopes:
+                # take the label object (filtering by name)
+                label_object = window.findChildren(QLabel, name=slope.name)
+                if len(label_object) == 0:
+                    continue
+                # set the text
+                label_object[0].setText(str(len(slope.ski_lift_queue)))
+
             time.sleep(sleep_time)
 
     def get_slope_by_name(self, name):
@@ -176,6 +185,7 @@ class SafeSkiingSimulator:
             publish.single("/{}/UUIDs".format(slope.station_name), all_UUIDs, hostname=self.mqtt_broker_host)
 
     def build_window(self):
+        print("Creating the GUI")
         # initialize GUI application
         app = QApplication(sys.argv)
 
@@ -192,6 +202,7 @@ class SafeSkiingSimulator:
             "background-image: url("+self.background_image+"); background-repeat: no-repeat; background-position: center;")
 
         for label in self.slopes_labels:
+            print ("Creating label", label)
             # create the label
             slope_label = QLabel(parent=window)
             slope_label.setFont(QFont('Arial', 10, QFont.Bold))
@@ -202,6 +213,5 @@ class SafeSkiingSimulator:
             # in this way we can access it later on through
             # window.findChildren(QLabel, name="label1"):
             slope_label.setObjectName(label)
-
         window.show()
         return app, window
