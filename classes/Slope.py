@@ -33,11 +33,14 @@ class Slope:
         # exit people ski_lift_capacity people from the lift queue
         # if the pop fails (no people in the lift queue) just break the loop
         exiting_people = []
-        for n in range(0, self.ski_lift_capacity):
-            try:
-                exiting_people.append(self.ski_lift_queue.pop(0))
-            except:
-                break
+        if self.ski_lift_capacity == -1:
+            exiting_people = self.ski_lift_queue
+        else:
+            for n in range(0, self.ski_lift_capacity):
+                try:
+                    exiting_people.append(self.ski_lift_queue.pop(0))
+                except:
+                    break
 
         if len(exiting_people) > 0:
             # extract len(exiting_people) number from a multinomial distribution
