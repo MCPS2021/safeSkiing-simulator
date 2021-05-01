@@ -129,6 +129,7 @@ class SafeSkiingSimulator:
                     slope.empty_cache()
 
                 print(self.get_slopes_status())
+                time.sleep(sleep_time)
 
     def simulate_gui(self, window, n_steps, sleep_time):
         for step in range(0, n_steps):
@@ -151,7 +152,10 @@ class SafeSkiingSimulator:
                 if len(label_object) == 0:
                     continue
                 # set the text
-                label_object[0].setText(str(len(slope.ski_lift_queue)))
+                for exit_idx,exit in enumerate(slope.exits['slopes']):
+                    if slope.exits['ski_lifts_capacities'][exit_idx] > 0:
+                        label_object[0].setText(str(len(slope.ski_lifts_queues[exit_idx])))
+                        break
 
             time.sleep(sleep_time)
 
