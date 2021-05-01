@@ -4,10 +4,17 @@
   "slopes": [{
     "name": "root",
     "exits": {
-      "slopes": ["A"], "distribution": [0.3], "ski_lifts_capacities": [-1]}
+      "slopes": ["A", "B", "C"], "distribution": [0.4, 0.4, 0.2], "ski_lifts_capacities": [-1, -1, -1]}
   },{
     "name": "A",
     "station_name": "stationA",
+    "slope_time": {"min": 1, "max": 5},
+    "exits": {
+      "slopes": ["root"], "distribution": [1], "ski_lifts_capacities": [3]},
+    "label": [55, 427]
+  },{
+    "name": "B",
+    "station_name": "stationB",
     "slope_time": {"min": 1, "max": 5},
     "exits": {
       "slopes": ["root"], "distribution": [1], "ski_lifts_capacities": [3]},

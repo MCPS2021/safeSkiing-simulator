@@ -88,7 +88,8 @@ class SafeSkiingSimulator:
 
         # init people on the root
         people = [SkiPass(get_random_uuid()) for n in range(0, initial_people)]
-        get_slope_by_name(self.slopes, 'root').set_ski_lift_queue(people)
+        for p in people:
+            get_slope_by_name(self.slopes, 'root').push(p)
 
     def get_slopes_status(self, slope_name=None):
         for slope in self.slopes:
@@ -99,8 +100,7 @@ class SafeSkiingSimulator:
             print("Slope {}".format(slope.name))
             print("Slope Queue: {}".format(slope.get_slope_queue()))
             print("tot {}".format(len(slope.get_slope_queue())))
-            print("Ski Lift Queue: {}".format(slope.get_ski_lift_queue()))
-            print("tot {}".format(len(slope.get_ski_lift_queue())))
+            print("Ski Lift Queues: {}".format(slope.get_ski_lifts_queues()))
             print("#" * 50)
 
     def simulate(self, gui_enabled=True, n_steps=1, sleep_time=1):

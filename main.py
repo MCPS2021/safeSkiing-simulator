@@ -27,6 +27,6 @@ if __name__ == '__main__':
         print(slope.get_info())
 
 
-    #sim.simulate(gui_enabled=True, n_steps=20)
+    sim.simulate(gui_enabled=False, n_steps=5)
 
     #curses.wrapper(gui, 2, 2)

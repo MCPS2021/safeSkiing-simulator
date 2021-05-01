@@ -45,7 +45,12 @@ class Slope:
         for exit_idx,exit in enumerate(self.exits['slopes']):
             # take the number of people that will exit from the ski lift queue
             # equals to the min between ski lift capacity and the people in the queue
-            people_on_ski_lift = min(len(self.ski_lifts_queues[exit_idx]), self.exits['ski_lifts_capacities'][exit_idx])
+            # but if the ski lit capability is == -1 all the people in the ski lift queue
+            # can be pushed on the next slope
+            if self.exits['ski_lifts_capacities'][exit_idx] == -1:
+                people_on_ski_lift = len(self.ski_lifts_queues[exit_idx])
+            else:
+                people_on_ski_lift = min(len(self.ski_lifts_queues[exit_idx]), self.exits['ski_lifts_capacities'][exit_idx])
             # pop people_on_ski_lift people from the ski lift queue and push them to the exit slope
             for p in range(0, people_on_ski_lift):
                 exit.push(self.ski_lifts_queues[exit_idx].pop(0))
@@ -61,17 +66,17 @@ class Slope:
             self.slope_queue.append(item)
         self.slope_queue_cache = []
 
-    def set_ski_lift_queue(self, people):
-        self.ski_lift_queue = people
-
     def set_slope_queue(self, people):
         self.ski_lift_queue = [{'object': person, 'timer': self.slope_time} for person in people]
 
     def get_slope_queue(self):
         return self.slope_queue
 
-    def get_ski_lift_queue(self):
-        return self.ski_lift_queue
+    def get_ski_lifts_queues(self):
+        result = []
+        for exit_id, exit in enumerate(self.exits['slopes']):
+            result.append({"slope": exit.name, "ski_lift_queue": len(self.ski_lifts_queues[exit_id])})
+        return result
 
     def get_info(self):
         return {"name": self.name, "slope_time": self.slope_time,
