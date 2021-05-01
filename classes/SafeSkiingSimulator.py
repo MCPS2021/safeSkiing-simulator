@@ -65,9 +65,9 @@ class SafeSkiingSimulator:
 
                 print("Adding slope {}".format(c_slope['name']))
                 slope_time = (c_slope['slope_time']['min'], c_slope['slope_time']['max'])
-                print("With slope time: {}, and ski lift capacity {}".format(slope_time, c_slope['ski_lift_capacity']))
+                print("With slope time: {}".format(slope_time))
                 self.slopes.append(
-                    Slope(c_slope['name'], c_slope['station_name'], slope_time, c_slope['ski_lift_capacity']))
+                    Slope(c_slope['name'], c_slope['station_name'], slope_time))
 
                 # adding label coordinates
                 self.slopes_labels[c_slope['name']] = c_slope['label']
@@ -80,7 +80,7 @@ class SafeSkiingSimulator:
 
                 # replace the slope names in the exits config, with the actual slope object created above
                 result = {"slopes": [get_slope_by_name(self.slopes, name) for name in exits['slopes']],
-                          "distribution": exits['distribution']}
+                          "distribution": exits['distribution'], "ski_lifts_capacities": exits['ski_lifts_capacities']}
                 slope.set_exits(result)
 
         else:

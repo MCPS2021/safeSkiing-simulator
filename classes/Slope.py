@@ -4,7 +4,7 @@ import numpy as np
 
 
 class Slope:
-    def __init__(self, name, station_name=None, slope_time=(1,5), ski_lift_capacity=1):
+    def __init__(self, name, station_name=None, slope_time=(1,5)):
         self.name = name
         if station_name == None:
             self.station_name = name
@@ -12,17 +12,19 @@ class Slope:
             self.station_name = station_name
         self.slope_queue_cache = []
         self.slope_queue = []
-        self.ski_lift_queue = []
+        self.ski_lifts_queues = []
         self.slope_time = slope_time
         self.exits = {}
-        self.ski_lift_capacity = ski_lift_capacity
+        self.ski_lifts_capacities = []
 
     def set_exits(self, exits):
         self.exits = exits
+        for exit in self.exits['slopes']:
+            self.ski_lifts_queues.append([])
 
     def pop(self):
-        # insert people with timer == 0 into ski_lift_queue
-        self.ski_lift_queue = self.ski_lift_queue + [x['object'] for x in self.slope_queue if x['timer'] == 0]
+        # extract people with timer == 0 from slope queue
+        extracted_people = [x['object'] for x in self.slope_queue if x['timer'] == 0]
         # recreate slope queue without people with timer == 0
         self.slope_queue = [x for x in self.slope_queue if x['timer'] != 0]
 
@@ -30,28 +32,23 @@ class Slope:
         for item in self.slope_queue:
             item['timer'] -= 1
 
-        # exit people ski_lift_capacity people from the lift queue
-        # if the pop fails (no people in the lift queue) just break the loop
-        exiting_people = []
-        if self.ski_lift_capacity == -1:
-            exiting_people = self.ski_lift_queue
-        else:
-            for n in range(0, self.ski_lift_capacity):
-                try:
-                    exiting_people.append(self.ski_lift_queue.pop(0))
-                except:
-                    break
-
-        if len(exiting_people) > 0:
-            # extract len(exiting_people) number from a multinomial distribution
-            # define on the probability distribution for the slope's exits configuration
-            multinomial_result = np.random.multinomial(len(exiting_people), self.exits["distribution"])
-            # multinomial_result will be something like [0,1,2]
-            # this means that 0 people will go to the first exit, 1 person to the second and 2 people to the third
+        # if someone exits from the slope
+        if len(extracted_people) > 0:
+            # divide people based on the multinomial distribution defined in the exits
+            multinomial_result = np.random.multinomial(len(extracted_people), self.exits["distribution"])
+            # multinomial_result will be something like [0,1,3]
+            # this means that 0 people will go to the first exit, 1 person to the second and 3 people to the third
             for i, result in enumerate(multinomial_result):
                 for person in range(0, result):
-                    self.exits['slopes'][i].push(exiting_people.pop(0))
+                    self.ski_lifts_queues[i].append(extracted_people.pop(0))
 
+        for exit_idx,exit in enumerate(self.exits['slopes']):
+            # take the number of people that will exit from the ski lift queue
+            # equals to the min between ski lift capacity and the people in the queue
+            people_on_ski_lift = min(len(self.ski_lifts_queues[exit_idx]), self.exits['ski_lifts_capacities'][exit_idx])
+            # pop people_on_ski_lift people from the ski lift queue and push them to the exit slope
+            for p in range(0, people_on_ski_lift):
+                exit.push(self.ski_lifts_queues[exit_idx].pop(0))
 
     def push(self, person):
         # insert person in the slope queue cache
@@ -77,5 +74,6 @@ class Slope:
         return self.ski_lift_queue
 
     def get_info(self):
-        return {"name": self.name, "slope_time": self.slope_time, "ski_lift_capacity": self.ski_lift_capacity,
-                "exits": {"slopes": [slope.name for slope in self.exits["slopes"]], "distribution": self.exits["distribution"]}}
+        return {"name": self.name, "slope_time": self.slope_time,
+                "exits": {"slopes": [slope.name for slope in self.exits["slopes"]], "distribution": self.exits["distribution"],
+                          "ski_lifts_capacities": self.exits["ski_lifts_capacities"]}}

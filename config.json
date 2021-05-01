@@ -3,57 +3,14 @@
 
   "slopes": [{
     "name": "root",
-    "ski_list_capacity": 10,
     "exits": {
-      "slopes": ["A", "B", "C"], "distribution": [0.3, 0.3, 0.3]}
+      "slopes": ["A"], "distribution": [0.3], "ski_lifts_capacities": [-1]}
   },{
     "name": "A",
     "station_name": "stationA",
     "slope_time": {"min": 1, "max": 5},
-    "ski_lift_capacity": 3,
     "exits": {
-      "slopes": ["root"], "distribution": [1]},
+      "slopes": ["root"], "distribution": [1], "ski_lifts_capacities": [3]},
     "label": [55, 427]
-  },{
-    "name": "B",
-    "station_name": "stationB",
-    "slope_time": {"min": 2, "max": 4},
-    "ski_lift_capacity": -1,
-    "exits": {
-      "slopes": ["D", "E"], "distribution": [0.6, 0.4]},
-    "label": [100, 120]
-  },{
-    "name": "C",
-    "station_name": "stationC",
-    "slope_time": {"min": 3, "max": 7},
-    "ski_lift_capacity": 4,
-    "exits": {
-      "slopes": ["root", "F"], "distribution": [0.7, 0.3]},
-    "label": [100, 120]
-  },{
-    "name": "D",
-    "station_name": "stationD",
-    "slope_time": {"min": 1, "max": 2},
-    "ski_lift_capacity": 5,
-    "exits": {
-      "slopes": ["root"], "distribution": [1]},
-    "label": [100, 120]
-  },{
-    "name": "E",
-    "station_name": "stationE",
-    "slope_time": {"min": 1, "max": 4},
-    "ski_lift_capacity": 3,
-    "exits": {
-      "slopes": ["B"], "distribution": [1]},
-    "label": [100, 120]
-  },{
-    "name": "F",
-    "station_name": "stationF",
-    "slope_time": {"min": 2, "max": 4},
-    "ski_lift_capacity": 3,
-    "exits": {
-      "slopes": ["B"], "distribution": [1]},
-    "label": [100, 120]
   }]
-
 }
