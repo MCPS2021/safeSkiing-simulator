@@ -70,7 +70,8 @@ class SafeSkiingSimulator:
                     Slope(c_slope['name'], c_slope['station_name'], slope_time))
 
                 # adding label coordinates
-                self.slopes_labels[c_slope['name']] = c_slope['label']
+                if 'label' in c_slope:
+                    self.slopes_labels[c_slope['name']] = c_slope['label']
 
             for slope in self.slopes:
                 # get the slope exits defined in the conf
@@ -158,6 +159,8 @@ class SafeSkiingSimulator:
                         break
 
             time.sleep(sleep_time)
+
+        print("Simulation termianted")
 
     def get_slope_by_name(self, name):
         for slope in self.slopes:

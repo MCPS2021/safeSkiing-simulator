@@ -38,7 +38,7 @@
     "slope_time": {"min": 3, "max": 6},
     "exits": {
       "slopes": ["B"], "distribution": [1], "ski_lifts_capacities": [3]},
-    "label": [752, 700]
+    "label": [752, 627]
   },{
     "name": "F",
     "station_name": "stationF",
