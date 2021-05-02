@@ -51,7 +51,8 @@ class SafeSkiingSimulator:
 
         self.slopes = []
         self.mqtt_broker_host = mqtt_broker_host
-        self.slopes_labels = {}
+        self.ski_lifts_labels = {}
+        self.slope_labels = {}
 
         # check if passed slopes are correctly formatted
         # and create the slopes
@@ -70,8 +71,12 @@ class SafeSkiingSimulator:
                     Slope(c_slope['name'], c_slope['station_name'], slope_time))
 
                 # adding label coordinates
-                if 'label' in c_slope:
-                    self.slopes_labels[c_slope['name']] = c_slope['label']
+                if 'ski_lift_label' in c_slope:
+                    self.ski_lifts_labels[c_slope['name']] = c_slope['ski_lift_label']
+
+                # adding slope lables coords
+                if 'slope_label' in c_slope:
+                    self.slope_labels[c_slope['name']] = c_slope['slope_label']
 
             for slope in self.slopes:
                 # get the slope exits defined in the conf
@@ -149,18 +154,29 @@ class SafeSkiingSimulator:
             # update labels
             for slope in self.slopes:
                 # take the label object (filtering by name)
-                label_object = window.findChildren(QLabel, name=slope.name)
-                if len(label_object) == 0:
+                # first the ski lift label then the slope label
+                ski_lift_label_object = window.findChildren(QLabel, name=(slope.name + "_ski_lift_label"))
+                slope_label_object = window.findChildren(QLabel, name=(slope.name + "_slope_label"))
+
+                # set slope label text
+                if len(slope_label_object) == 0:
                     continue
-                # set the text
+
+                slope_label_object[0].setText(str(len(slope.slope_queue)))
+                slope_label_object[0].adjustSize()
+
+                if len(ski_lift_label_object) == 0:
+                    continue
+                # set the text of the ski lift queue label
                 for exit_idx,exit in enumerate(slope.exits['slopes']):
                     if slope.exits['ski_lifts_capacities'][exit_idx] > 0:
-                        label_object[0].setText(str(len(slope.ski_lifts_queues[exit_idx])))
+                        ski_lift_label_object[0].setText(str(len(slope.ski_lifts_queues[exit_idx])))
+                        ski_lift_label_object[0].adjustSize()
                         break
 
             time.sleep(sleep_time)
 
-        print("Simulation termianted")
+        print("Simulation terminates")
 
     def get_slope_by_name(self, name):
         for slope in self.slopes:
@@ -208,17 +224,31 @@ class SafeSkiingSimulator:
         window.setStyleSheet(
             "background-image: url("+self.background_image+"); background-repeat: no-repeat; background-position: center;")
 
-        for label in self.slopes_labels:
-            print ("Creating label", label)
+        for label in self.ski_lifts_labels:
+            print ("Creating ski lift label", label)
             # create the label
             slope_label = QLabel(parent=window)
-            slope_label.setFont(QFont('Arial', 10, QFont.Bold))
+            slope_label.setFont(QFont('Arial', 15, QFont.Bold))
             slope_label.setStyleSheet("color: #ff0000;")
             # move the label in the coords indicated in the config file
-            slope_label.move(self.slopes_labels.get(label)[0], self.slopes_labels.get(label)[1])
+            slope_label.move(self.ski_lifts_labels.get(label)[0], self.ski_lifts_labels.get(label)[1])
             # set as label name the slope name
             # in this way we can access it later on through
             # window.findChildren(QLabel, name="label1"):
-            slope_label.setObjectName(label)
+            slope_label.setObjectName(label+"_ski_lift_label")
+
+        for label in self.slope_labels:
+            print ("Creating slope label", label)
+            # create the label
+            slope_label = QLabel(parent=window)
+            slope_label.setFont(QFont('Arial', 15, QFont.Bold))
+            slope_label.setStyleSheet("color: #ff0000;")
+            # move the label in the coords indicated in the config file
+            slope_label.move(self.slope_labels.get(label)[0], self.slope_labels.get(label)[1])
+            # set as label name the slope name
+            # in this way we can access it later on through
+            # window.findChildren(QLabel, name="label1"):
+            slope_label.setObjectName(label + "_slope_label")
+
         window.show()
         return app, window
