@@ -252,7 +252,8 @@ class SafeSkiingSimulator:
             # create the label
             slope_label = QLabel(parent=window)
             slope_label.setFont(QFont('Arial', 15, QFont.Bold))
-            slope_label.setStyleSheet("color: #ff0000; background-color: lightgreen;")
+            slope_label.setStyleSheet("color: #ffffff; background: rgba(0,0,0,0);")
+            slope_label.setAutoFillBackground(True);
             # move the label in the coords indicated in the config file
             slope_label.move(self.ski_lifts_labels.get(label)[0], self.ski_lifts_labels.get(label)[1])
             # set as label name the slope name
@@ -265,7 +266,7 @@ class SafeSkiingSimulator:
             # create the label
             slope_label = QLabel(parent=window)
             slope_label.setFont(QFont('Arial', 15, QFont.Bold))
-            slope_label.setStyleSheet("color: #ff0000;")
+            slope_label.setStyleSheet("color: #ff0000; background: rgba(0,0,0,0);")
             # move the label in the coords indicated in the config file
             slope_label.move(self.slope_labels.get(label)[0], self.slope_labels.get(label)[1])
             # set as label name the slope name
