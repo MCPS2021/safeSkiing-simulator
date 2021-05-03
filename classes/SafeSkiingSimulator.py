@@ -134,6 +134,10 @@ class SafeSkiingSimulator:
                 for slope in self.slopes:
                     slope.empty_cache()
 
+                # if a mqtt broker is specified in the config
+                if self.mqtt_broker_host is not None:
+                    self.publish_MQTT()
+
                 print(self.get_slopes_status())
                 time.sleep(sleep_time)
 
@@ -174,6 +178,10 @@ class SafeSkiingSimulator:
                         ski_lift_label_object[0].adjustSize()
                         break
 
+            # if a mqtt broker is specified in the config
+            if self.mqtt_broker_host is not None:
+                self.publish_MQTT()
+
             time.sleep(sleep_time)
 
         print("Simulation terminates")
@@ -196,16 +204,31 @@ class SafeSkiingSimulator:
             if slope.name == 'root':
                 continue
 
-            # concatenate all the UUIDs
+            # concatenate all the UUIDs: UUID,battery;.....
             all_UUIDs = ""
-            for person in slope.ski_lift_queue:
+
+            # take the exit idx of the exit with capacity > 0
+            # assuming one only ski lift for each slope
+            ski_lift_queue = None
+            for exit_idx, exit in enumerate(slope.exits['slopes']):
+                if slope.exits['ski_lifts_capacities'][exit_idx] > 0:
+                    ski_lift_queue = slope.ski_lifts_queues[exit_idx]
+                    break
+
+            # if I did not find the ski lift queue (meaning that no ski lift in this slope)
+            # just skip this slope
+            if ski_lift_queue is None:
+                continue
+
+            # otherwise concat all the UUIDs in the queue
+            for person in ski_lift_queue:
                 all_UUIDs += str(person.uuid) + "," + str(person.battery) + ";"
             all_UUIDs = all_UUIDs[:-1]
 
             # send the two MQTT topics
-            publish.single("/{}/totalPeople".format(slope.station_name), str(len(slope.ski_lift_queue)),
-                           hostname=self.mqtt_broker_host)
-            publish.single("/{}/UUIDs".format(slope.station_name), all_UUIDs, hostname=self.mqtt_broker_host)
+            publish.single("/{}/totalPeople".format(slope.station_name), str(len(ski_lift_queue)),
+                           hostname=self.mqtt_broker_host, qos=2)
+            publish.single("/{}/UUIDs".format(slope.station_name), all_UUIDs, hostname=self.mqtt_broker_host, qos=2)
 
     def build_window(self):
         print("Creating the GUI")
@@ -229,7 +252,7 @@ class SafeSkiingSimulator:
             # create the label
             slope_label = QLabel(parent=window)
             slope_label.setFont(QFont('Arial', 15, QFont.Bold))
-            slope_label.setStyleSheet("color: #ff0000;")
+            slope_label.setStyleSheet("color: #ff0000; background-color: lightgreen;")
             # move the label in the coords indicated in the config file
             slope_label.move(self.ski_lifts_labels.get(label)[0], self.ski_lifts_labels.get(label)[1])
             # set as label name the slope name
