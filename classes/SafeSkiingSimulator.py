@@ -126,7 +126,7 @@ class SafeSkiingSimulator:
                 # people exit from ski lift queue and goes to
                 # slope queue cache
                 for slope in self.slopes:
-                    slope.pop()
+                    slope.pop(mqtt_broker_host = self.mqtt_broker_host)
                 # once all the slopes are popped, put the cache items
                 # (which are people that was transferred this round)
                 # into the real slope queue (with their timer)
@@ -147,7 +147,7 @@ class SafeSkiingSimulator:
             # people exit from ski lift queue and goes to
             # slope queue cache
             for slope in self.slopes:
-                slope.pop()
+                slope.pop(mqtt_broker_host=self.mqtt_broker_host)
             # once all the slopes are popped, put the cache items
             # (which are people that was transferred this round)
             # into the real slope queue (with their timer)

@@ -1,6 +1,7 @@
 import random
 
 import numpy as np
+from paho.mqtt import publish
 
 
 class Slope:
@@ -22,7 +23,7 @@ class Slope:
         for exit in self.exits['slopes']:
             self.ski_lifts_queues.append([])
 
-    def pop(self):
+    def pop(self, mqtt_broker_host=None):
         # extract people with timer == 0 from slope queue
         extracted_people = [x['object'] for x in self.slope_queue if x['timer'] == 0]
         # recreate slope queue without people with timer == 0
@@ -53,7 +54,16 @@ class Slope:
                 people_on_ski_lift = min(len(self.ski_lifts_queues[exit_idx]), self.exits['ski_lifts_capacities'][exit_idx])
             # pop people_on_ski_lift people from the ski lift queue and push them to the exit slope
             for p in range(0, people_on_ski_lift):
-                exit.push(self.ski_lifts_queues[exit_idx].pop(0))
+                person = self.ski_lifts_queues[exit_idx].pop(0)
+                # if mqtt broker is not None, send the NFC topic to the mqtt broker
+                if mqtt_broker_host is not None and self.name != 'root':
+                    topic = "/nfc/{}".format(person.uuid)
+                    try:
+                        publish.single(topic, self.station_name, hostname=mqtt_broker_host, qos=2)
+                    except:
+                        print("unable to publich on the topic", topic)
+
+                exit.push(person)
 
     def push(self, person):
         # insert person in the slope queue cache
