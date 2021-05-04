@@ -57,7 +57,7 @@ class Slope:
                 person = self.ski_lifts_queues[exit_idx].pop(0)
                 # if mqtt broker is not None, send the NFC topic to the mqtt broker
                 if mqtt_broker_host is not None and self.name != 'root':
-                    topic = "/nfc/{}".format(person.uuid)
+                    topic = "/NFC/{}".format(person.uuid)
                     try:
                         publish.single(topic, self.station_name, hostname=mqtt_broker_host, qos=2)
                     except:
