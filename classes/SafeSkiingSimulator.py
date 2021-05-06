@@ -226,9 +226,9 @@ class SafeSkiingSimulator:
             all_UUIDs = all_UUIDs[:-1]
 
             # send the two MQTT topics
-            publish.single("/{}/totalPeople".format(slope.station_name), str(len(ski_lift_queue)),
+            publish.single("/station{}/totalPeople".format(slope.station_name), str(len(ski_lift_queue)),
                            hostname=self.mqtt_broker_host, qos=2)
-            publish.single("/{}/UUIDs".format(slope.station_name), all_UUIDs, hostname=self.mqtt_broker_host, qos=2)
+            publish.single("/station{}/UUIDs".format(slope.station_name), all_UUIDs, hostname=self.mqtt_broker_host, qos=2)
 
     def build_window(self):
         print("Creating the GUI")
