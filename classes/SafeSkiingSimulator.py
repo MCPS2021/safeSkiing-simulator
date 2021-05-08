@@ -93,7 +93,9 @@ class SafeSkiingSimulator:
             raise BadSlopesException()
 
         # init people on the root
-        people = [SkiPass(get_random_uuid()) for n in range(0, initial_people)]
+        with open("uuids.csv", "r") as file:
+            lines = file.readlines()
+        people = [SkiPass(el.strip().split(";")[0], battery=el.strip().split(";")[1]) for el in lines[:initial_people]]
         for p in people:
             get_slope_by_name(self.slopes, 'root').push(p)
 
@@ -143,6 +145,11 @@ class SafeSkiingSimulator:
 
     def simulate_gui(self, window, n_steps, sleep_time):
         for step in range(0, n_steps):
+
+            # if a mqtt broker is specified in the config
+            if self.mqtt_broker_host is not None:
+                self.publish_MQTT()
+
             # pop people form the slopes
             # people exit from ski lift queue and goes to
             # slope queue cache
@@ -178,9 +185,7 @@ class SafeSkiingSimulator:
                         ski_lift_label_object[0].adjustSize()
                         break
 
-            # if a mqtt broker is specified in the config
-            if self.mqtt_broker_host is not None:
-                self.publish_MQTT()
+
 
             time.sleep(sleep_time)
 

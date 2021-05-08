@@ -26,12 +26,12 @@ if __name__ == '__main__':
     with open('config.json') as f:
         config = json.load(f)
 
-    sim = SafeSkiingSimulator(config,mqtt_broker_host="192.168.1.150",initial_people=200)
+    sim = SafeSkiingSimulator(config,mqtt_broker_host="192.168.1.150",initial_people=5)
 
     #for slope in sim.slopes:
     #    print(slope.get_info())
 
 
-    sim.simulate(gui_enabled=True, n_steps=200,sleep_time=5)
+    sim.simulate(gui_enabled=True, n_steps=1000,sleep_time=3)
 
     #curses.wrapper(gui, 2, 2)
