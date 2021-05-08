@@ -224,6 +224,8 @@ class SafeSkiingSimulator:
             # or no people in the queue
             # just skip this slope
             if ski_lift_queue is None or len(ski_lift_queue) == 0:
+                publish.single("/station{}/totalPeople".format(slope.station_name), str(len(ski_lift_queue)),
+                               hostname=self.mqtt_broker_host, qos=2)
                 continue
 
             # otherwise concat all the UUIDs in the queue
