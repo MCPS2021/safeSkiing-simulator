@@ -223,8 +223,10 @@ class SafeSkiingSimulator:
             # if I did not find the ski lift queue (meaning that no ski lift in this slope)
             # or no people in the queue
             # just skip this slope
-            if ski_lift_queue is None or len(ski_lift_queue) == 0:
-                publish.single("/station{}/totalPeople".format(slope.station_name), str(len(ski_lift_queue)),
+            if ski_lift_queue is None:
+                continue
+            if len(ski_lift_queue) == 0:
+                publish.single("/station{}/totalPeople".format(slope.station_name), str(0),
                                hostname=self.mqtt_broker_host, qos=2)
                 continue
 
