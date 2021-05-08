@@ -216,8 +216,9 @@ class SafeSkiingSimulator:
                     break
 
             # if I did not find the ski lift queue (meaning that no ski lift in this slope)
+            # or no people in the queue
             # just skip this slope
-            if ski_lift_queue is None:
+            if ski_lift_queue is None or len(ski_lift_queue) == 0:
                 continue
 
             # otherwise concat all the UUIDs in the queue

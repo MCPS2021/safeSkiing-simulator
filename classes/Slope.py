@@ -61,7 +61,7 @@ class Slope:
                     try:
                         publish.single(topic, self.station_name, hostname=mqtt_broker_host, qos=2)
                     except:
-                        print("unable to publich on the topic", topic)
+                        print("unable to publish on the topic", topic)
 
                 exit.push(person)
 

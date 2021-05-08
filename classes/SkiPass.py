@@ -1,6 +1,6 @@
 class SkiPass:
 
-    def __init__(self, uuid, battery=100):
+    def __init__(self, uuid, battery="d8"):
         self.uuid = uuid
         self.battery = battery
 
