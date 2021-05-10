@@ -146,8 +146,7 @@ class SafeSkiingSimulator:
     def simulate_gui(self, window, n_steps, sleep_time):
 
         if not self.config['docker']:
-            from PyQt5.QtWidgets import *
-            from PyQt5.QtGui import *
+            from PyQt5.QtWidgets import QLabel
 
         for step in range(0, n_steps):
 
@@ -240,8 +239,8 @@ class SafeSkiingSimulator:
 
     def build_window(self):
         if not self.config['docker']:
-            from PyQt5.QtWidgets import *
-            from PyQt5.QtGui import *
+            from PyQt5.QtWidgets import QApplication, QLabel, QWidget
+            from PyQt5.QtGui import QFont
 
         print("Creating the GUI")
         # initialize GUI application
