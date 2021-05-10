@@ -124,6 +124,11 @@ class SafeSkiingSimulator:
 
         else:
             for step in range(0, n_steps):
+
+                # if a mqtt broker is specified in the config
+                if self.mqtt_broker_host is not None:
+                    self.publish_MQTT()
+
                 # pop people form the slopes
                 # people exit from ski lift queue and goes to
                 # slope queue cache
@@ -135,10 +140,6 @@ class SafeSkiingSimulator:
                 # in this way the slope queue time parameter is used correctly
                 for slope in self.slopes:
                     slope.empty_cache()
-
-                # if a mqtt broker is specified in the config
-                if self.mqtt_broker_host is not None:
-                    self.publish_MQTT()
 
                 print(self.get_slopes_status())
                 time.sleep(sleep_time)
