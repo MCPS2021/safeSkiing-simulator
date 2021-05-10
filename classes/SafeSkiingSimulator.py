@@ -1,11 +1,7 @@
-import curses
 import random
 import sys
 import threading
 import time
-
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 import paho.mqtt.publish as publish
 
@@ -42,6 +38,9 @@ def get_random_uuid():
 class SafeSkiingSimulator:
 
     def __init__(self, config=None, mqtt_broker_host=None, initial_people=100):
+
+        self.config = config
+
         c_slopes = config['slopes']
 
         try:
@@ -145,6 +144,11 @@ class SafeSkiingSimulator:
                 time.sleep(sleep_time)
 
     def simulate_gui(self, window, n_steps, sleep_time):
+
+        if not self.config['docker']:
+            from PyQt5.QtWidgets import *
+            from PyQt5.QtGui import *
+
         for step in range(0, n_steps):
 
             # if a mqtt broker is specified in the config
@@ -197,13 +201,6 @@ class SafeSkiingSimulator:
             if slope.name == name:
                 return slope
 
-    def draw(self, stdscr):
-        for i, slope in enumerate(self.slopes):
-            stdscr.addstr(i, 0,
-                          "Slope {}, Slope Queue: {}, Ski Lift Queue: {}".format(slope.name, len(slope.slope_queue),
-                                                                                 len(slope.ski_lift_queue)))
-        stdscr.move(curses.LINES - 1, 0)
-        stdscr.refresh()
 
     def publish_MQTT(self):
         for slope in self.slopes:
@@ -242,6 +239,10 @@ class SafeSkiingSimulator:
             publish.single("/station{}/UUIDs".format(slope.station_name), all_UUIDs, hostname=self.mqtt_broker_host, qos=2)
 
     def build_window(self):
+        if not self.config['docker']:
+            from PyQt5.QtWidgets import *
+            from PyQt5.QtGui import *
+
         print("Creating the GUI")
         # initialize GUI application
         app = QApplication(sys.argv)
