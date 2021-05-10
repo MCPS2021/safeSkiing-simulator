@@ -1,4 +1,5 @@
 {
+  "docker": true,
   "background-image": "skimap.png",
   "initial_people": 150,
   "n_step": 1000,

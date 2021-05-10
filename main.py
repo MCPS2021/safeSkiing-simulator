@@ -7,17 +7,12 @@ if __name__ == '__main__':
     with open('config.json') as f:
         config = json.load(f)
 
-    try:
-        docker_flag = sys.argv[1]
-        if (docker_flag) == "false":
-            gui_enabled = True
-            mqtt_host = config["mqtt_broker_host"]
-        else:
-            gui_enabled = False
-            mqtt_host = "mqtt_broker"
-
-    except:
+    if config["docker"] == False:
+        gui_enabled = True
+        mqtt_host = config["mqtt_broker_host"]
+    else:
         gui_enabled = False
+        mqtt_host = "mqtt_broker"
 
     sim = SafeSkiingSimulator(config,mqtt_broker_host="192.168.1.150", initial_people=config['initial_people'])
 
